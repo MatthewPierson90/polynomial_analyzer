@@ -2,10 +2,10 @@
 """
 A very basic polynomial analyzer.  
 
-to create a new polynomial instance, p, type 'p=Poly()'.  The program will automatically
+to create a new polynomial instance, p, type 'p=Polynomial()'.  The program will automatically
 store your variable choice at 'p.variable', unfortunately this program only supports
 polynomials of a single variable.
-Your polynomial will automatically be simplifed, to view your simplified polynomial 
+Your polynomial will automatically be simplified, to view your simplified polynomial
 type 'p.polynomial' or 'p.simplify()'  
 
 this program can evaluate your polynomial, to do this use 'p.evaluate(a)' where 
@@ -15,11 +15,11 @@ The program can numerically solve for roots, use 'p.root()'.
 
 The program can brute force optimize over an interval, use 'p.optimize()' 
 
-This program can do basic calculus with your polynmials!
+This program can do basic calculus with your polynomials!
 To take a derivative, type 'p.derivative()'.  After using the derivative method, the derivative is saved as
 an instance of the class polynomial.  In particular, it is stored at p.prime.
 One can take multiple derivatives by iterating this process, for example, the
-second derivative can be found with the following syntax 'p.prime.der()'.
+second derivative can be found with the following syntax 'p.prime.derivative()'.
 
 Similarly, the program can tell you the indefinite integral of your polynomial, use
 'p.indefinite()'.  This will create an instance of the indefinite integral, to call
@@ -28,129 +28,148 @@ this instance use the syntax 'p.anti'.
 The program can also solve definite integrals, use 'p.definite()'  
 """
 
-class Poly(object):
+class Polynomial(object):
     def __init__(self, polynomial=None,variable=None):
         if polynomial == None:
             self.polynomial=str(input("Input Polynomial:\n"))
         else:
             self.polynomial=polynomial
-        letters='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        self.variable=None
-        if variable==None:
+
+        if ' ' in self.polynomial:
+            split = self.polynomial.split(' ')
+            g = ''
+            for item in split:
+                g += item
+            self.polynomial = g
+        self.numbers = '0123456789'
+        letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        self.variable = None
+        if not variable:
             for x in self.polynomial:
                 if x in letters:
-                    self.variable=x
+                    self.variable = x
                     break
         else:
             self.variable=variable
-        if self.variable==None:
+        if not self.variable:
             self.variable='x'
         self.original = self.polynomial
-        self.polynomial=self.simplify()
         self.plist()
-        
+        self.polynomial = self.simplify()
+        self.degree = 0
+        num_terms = len(self.polynomial)
+        for i in range(num_terms):
+            if self.polynomial[i] == '^' and self.polynomial[i-1] == self.variable:
+                to_check = self.polynomial[i+1]
+                for k in range(i+2, num_terms):
+                    if self.polynomial[k] in self.numbers:
+                        to_check += self.polynomial[k]
+                    else:
+                        break
+                if int(to_check) > self.degree:
+                    self.degree = int(to_check)
         
     def fix_notation(self,f=None):
-        if f==None:
-            f=self.polynomial
-        i=0
-        numbers='.0123456789)'
-        g=''
-        x=self.variable
+        if f == None:
+            f = self.polynomial
+        i = 0
+        numbers = '.0123456789)'
+        g = ''
+        x = self.variable
         #print(f)
-        while i<len(f):
-            if i==0 and f[i]==x:
-                g+="1*"
-            elif f[i]==x and f[i-1] in '-+([{)]}':
-                g+='1*'
+        while i < len(f):
+            if i == 0 and f[i] == x:
+                g += "1*"
+            elif f[i] == x and f[i-1] in '-+([{)]}':
+                g += '1*'
                 
-            if i==len(f)-1:
-                if f[i]==x:
-                    g+=x+"^1"
+            if i == len(f)-1:
+                if f[i] == x:
+                    g += x+"^1"
                 else:
-                    g+=f[i]
+                    g += f[i]
             else:
                 if f[i] in numbers and f[i+1] not in '.0123456789-+*/^)]}':
-                    g+=f[i]+"*"
-                elif f[i]==x and f[i+1]!='^':
+                    g += f[i]+"*"
+                elif f[i] == x and f[i+1] != '^':
                     g+=x+"^1"
                 elif f[i] in ')}]' and f[i+1] not in '+-^*/':
                     g+=f[i]+'*'
                 else:
-                    g+=f[i]
-            if i<len(f)-1:
-                if f[i]==x and f[i+1] in '({[':
-                    g+="*"
+                    g += f[i]
+            if i < len(f)-1:
+                if f[i] == x and f[i+1] in '({[':
+                    g += "*"
             i+=1
-        return(g)                              
+        return g
     
     def plist(self,f=None):
-        if f==None:
-            f=self.fix_notation()
-        flst=[]
-        term=""
-        i=0
-        while i<len(f):
+        if f == None:
+            f = self.fix_notation()
+        flst = []
+        term = ""
+        i = 0
+        while i < len(f):
             if f[i] in "0123456789."+self.variable:
-                if i!=len(f)-1:
-                    term+=f[i]
+                if i != len(f)-1:
+                    term += f[i]
                 else:
-                    term+=f[i]
+                    term += f[i]
                     flst.append(term)
-            elif f[i]=='-':
-                if i==0:
-                    term+='-'
-                elif term=='':
-                    term+='-'
+            elif f[i] == '-':
+                if i == 0:
+                    term += '-'
+                elif term == '':
+                    term += '-'
                     flst.append('+')
                 else:
                     flst.append(term)
                     flst.append('+')
                     term='-'
             elif f[i] in "+^*/":
-                if term!="":
+                if term != "":
                     flst.append(term)
-                    term=''
+                    term = ''
                     flst.append(f[i])
                 else:
                     flst.append(f[i])
             elif f[i] in '([{':
-                if term!="":
+                if term != "":
                     flst.append(term)
-                    term=""
-                j=i+1
+                    term = ""
+                j = i+1
                 while f[j] not in ')]}':
-                    term+=f[j]
-                    j+=1
-                    i=j
+                    term += f[j]
+                    j += 1
+                    i = j
                 flst.append(self.plist(term))
-                term=''
-            i+=1
-        self.lst=flst
+                term = ''
+            i += 1
+        self.lst = flst
         return(flst)
     
     def combine_terms(self,l1):
-        var1=[]
-        const1=[]   
-        rv=[]
-        rc=[]
-        x=self.variable
+        var1 = []
+        const1 = []
+        rv = []
+        rc = []
+        x = self.variable
         for i in range(len(l1)):
-            if len(l1)==1:
+            if len(l1) == 1:
                 const1.append(0)
                 break
-            if l1[i]==x:
+            if l1[i] == x:
                 var1.append(i)
-        c=0
-        c1=0
+        c = 0
+        c1 = 0
         if len(var1)>1:          
             for i in range(len(var1)):     
                 if i in rv:
                     #print(rv)
-                    c1+=1
+                    c1 += 1
                     continue
-                i1=var1[i]-6*c1
-                c=0
+                i1 = var1[i]-6*c1
+                c = 0
                 #print('\n','i=',i,'i1=',i1,'listv=',l1[i1+2], '\n')
                 for j in range(i+1,len(var1)):
                     if j in rv:
@@ -164,7 +183,7 @@ class Poly(object):
                         del l1[i2-3:i2+3]
                         c+=6
                         rv.append(j)
-        c=0
+        c = 0
         for i in range(len(l1)):
             if len(l1)==1:
                 break
@@ -266,12 +285,12 @@ class Poly(object):
     
     def list_power(self,lst1,n):
         n=int(n)
-        power=[x for x in lst1]
+        power = [x for x in lst1]
         for i in range(1,n):
-            power=self.list_prod(power,lst1)
-        g=''
+            power = self.list_prod(power,lst1)
+        g = ''
         for x in power:
-            g+=x
+            g += x
         #print(g)
         return(power)
     
@@ -328,10 +347,10 @@ class Poly(object):
         return(l1)
 
     def simplify(self):
-        plst=self.plist()
-        x=self.variable
+        plst = self.plist()
+        x = self.variable
         #do exponents
-        i=0
+        i = 0
         #print(plst)
         while i < len(plst)-1:
             if type(plst[i])==list and plst[i+1]=='^':
@@ -340,7 +359,7 @@ class Poly(object):
                 plst.pop(i+1)
             i+=1
         #do products
-        i=0
+        i = 0
         while i<len(plst)-2:
             if type(plst[i])==list and type(plst[i+2])==list and plst[i+1]=='*':
                 plst[i]=self.list_prod(plst[i],plst[i+2])
@@ -381,7 +400,7 @@ class Poly(object):
                     plst[i]=self.distribute_c(plst[i],plst[i+1])
                     plst.pop(i+1)
             else:
-                if type(plst[i])==list and plst[i+3]in '+-':
+                if type(plst[i])==list and plst[i+3] in '+-':
                     plst[i]=self.distribute_c(plst[i],plst[i+2])
                     plst.pop(i+1)
                     plst.pop(i+1)
@@ -511,7 +530,7 @@ class Poly(object):
         
         for a in flst:
             f+=a
-        self.prime=Poly(f)
+        self.prime=Polynomial(f)
         return(f)
 
     def indefinite(self):
@@ -542,7 +561,7 @@ class Poly(object):
             i+=1
         for a in flst:
             f+=a
-        self.anti=Poly(f)
+        self.anti=Polynomial(f)
         print(f)  
     def definite(self,a=None,b=None):
         if a==None:
@@ -579,7 +598,8 @@ class Poly(object):
             n+=1
         f=float(self.evaluate(a))
         a=round(a,7)
-        print('I did n=',n,' iterations','\n root, a, is approximately',a,'\n f(a) is approximately', f)
+        return a
+        # print('I did n=',n,' iterations','\n root, a, is approximately',a,'\n f(a) is approximately', f)
 
 
                 
