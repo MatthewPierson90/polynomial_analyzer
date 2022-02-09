@@ -1,4 +1,4 @@
-# polynomial_analyzer
+# Polynomial Analyzer
 An update to the polynomialclass, the originial is still in this repository.  The original was my first dive into python classes.
 
 Can be run from the gui, or by directly importing the class from polynomial_class_revisited.
