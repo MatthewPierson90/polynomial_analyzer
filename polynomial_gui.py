@@ -50,11 +50,11 @@ class Polynomial_gui(Tk):
         self.roots_right.grid(row = 6, column = 2, sticky = 'NSEW')
         
         
-        self.graph_left = Frame(self, bd=2, relief='solid')
-        self.graph_left.grid(row = 7, column = 1, sticky = 'NSEW')
-
-        self.graph_right = Frame(self, bd=2, relief='solid')
-        self.graph_right.grid(row = 7, column = 2, sticky = 'NSEW')
+        # self.graph_left = Frame(self, bd=2, relief='solid')
+        # self.graph_left.grid(row = 7, column = 1, sticky = 'NSEW')
+        #
+        # self.graph_right = Frame(self, bd=2, relief='solid')
+        # self.graph_right.grid(row = 7, column = 2, sticky = 'NSEW')
 
 
         self.poly_name = 'p'
@@ -137,10 +137,10 @@ class Polynomial_gui(Tk):
             self.roots_left.grid(row=6, column=1, sticky='NSEW')
             self.roots_right = Frame(self, bg='white', bd=2, relief='solid')
             self.roots_right.grid(row=6, column=2, sticky='NSEW')
-            self.graph_left = Frame(self, bd=2, relief='solid')
-            self.graph_left.grid(row=7, column=1, sticky='NSEW')
-            self.graph_right = Frame(self, bd=2, relief='solid')
-            self.graph_right.grid(row=7, column=2, sticky='NSEW')
+            # self.graph_left = Frame(self, bd=2, relief='solid')
+            # self.graph_left.grid(row=7, column=1, sticky='NSEW')
+            # self.graph_right = Frame(self, bd=2, relief='solid')
+            # self.graph_right.grid(row=7, column=2, sticky='NSEW')
 
             self.make_enter_polynomial_frame()
             self.make_simplify_frame()
